@@ -176,8 +176,13 @@ export class SAPconnectorService {
     });
 
   });
+ 
+  }
+
+  __internal_set_headerForAPC(hdrPar:string,hdrVal:string){
 
   }
+
 
   setAPCparameters(url: string,appId: string){
     this.APCurl = url;
@@ -219,7 +224,7 @@ export class SAPconnectorService {
 
           //--> load required modules (UI5)
           window.sap.ui.require(['sap/ui/model/json/JSONModel', 'fioritalframework/uy5/helper/UY5CORE','it/fiorital/fioritalui5lib/controls/APCmanager','sap/ui/core/ws/WebSocket','it/fiorital/fioritalui5lib/controls/FioritalMessageStrip'],
-            function (JSONModel, UY5CORE,APCmanager,WS,messageBox) {
+            function (JSONModel, UY5CORE,APCmanager,WS) {
 
               debugger;
 

@@ -8,12 +8,23 @@
 <!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 
 <style>
-  
+
 </style>
 
 <main class="main">
   <div class="content">
-    <button (click)="goCallSap()">press me</button>
+
+    <div style="height: 2em; flex-direction: row; display: flex;">
+      <button (click)="goCallSap()">call sap</button>
+      <button (click)="goToCell()">goto cell</button>
+      <ui5-input #ipt></ui5-input>
+    </div>
+
+
+    <ag-grid-angular style="height: 30em;" #agGrid [rowData]="rowData" [columnDefs]="colDefs"
+    [getRowHeight]="getRowHeight" />
+
+
   </div>
 </main>
 
