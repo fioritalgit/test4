@@ -27,6 +27,7 @@ export class AppComponent implements AfterViewInit {
   public lastSearchString: string = ''
   public searchIndex: number = 0
   public searchTargets: Array<IRowNode> = [];
+  listeners = []
 
   // Row Data: The data to be displayed.
   rowData = [
@@ -75,7 +76,7 @@ export class AppComponent implements AfterViewInit {
   public goCallSap() {
 
     this.SAP.clearParameters('gr');
-    this.SAP.callFunction('gr', 'INIT', 'SYNC1').then((data) => {
+    this.SAP.callFunction('gr', 'TEST_APC', 'SYNC1').then((data) => {
 
     }).catch((err) => {
       console.log('Error calling SAP')
@@ -167,7 +168,7 @@ export class AppComponent implements AfterViewInit {
 
 
 
-
+  //--------------------------------------- start SAP service
 
   ngAfterViewInit(): void {
 
@@ -178,28 +179,31 @@ export class AppComponent implements AfterViewInit {
     //---> manage the search input filed focus
     this.hotkeysService.add(
       new Hotkey('ctrl+f', (event: KeyboardEvent): boolean => {
-
         this.ipt.elementRef.nativeElement.focus()
-
-        event.preventDefault(); // Prevent default browser behavior (e.g., opening search bar)
-        return false; // Prevent further propagation
+        event.preventDefault(); 
+        return false; 
       })
     );
 
 
     //--> load UI5 and authenticate to one SAP url (can be same as service); leave version undefined to take last from CDN
-    this.SAP.activateSAPconnection(undefined, 'https://wd.fiorital.com:4301/sap/opu/odata4/sap/zretail/default/sap/zmm_gr_list/0001/?sap-client=200', 'BPINST', 'Welcome1', true)
+    this.SAP.activateSAPconnection(undefined, 'https://wd.fiorital.com:4304/sap/opu/odata4/sap/zretail/default/sap/zmm_gr_list/0001/?sap-client=200', 'LUCA.FARI', 'Polipoli32!', true)
 
     //--> enqueue model connection request
-    this.SAP.addRemoteService("gr", "https://wd.fiorital.com:4301/sap/opu/odata4/sap/zretail/default/sap/zmm_gr_list/0001/?sap-client=200", "../assets/models.XML", false)
+    this.SAP.addRemoteService("gr", "https://wd.fiorital.com:4304/sap/opu/odata4/sap/zretail/default/sap/zmm_gr_list/0001/?sap-client=200", "../assets/models.XML", false)
       .then((ref) => {
         //--> single service ready
       })
 
-    this.SAP.setAPCparameters('https://wd.fiorital.com:4301/sap/opu/odata4/sap/zfiov4/default/sap/zfioapi/0001/Ysocket', '') //<-- used to get sockets ID and appID (in this case not specific)
+    this.SAP.setAPCparameters('https://wd.fiorital.com:4304/sap/opu/odata4/sap/zfiov4/default/sap/zfioapi/0001/Ysocket', 'apctestangular') //<-- used to get sockets ID and appID (in this case not specific)
     this.SAP.connectAllRemoteServices().then((ref) => {
       //--> all services loaded and ready!
       console.log('done SAP');
+
+      this.SAP.addListenerPermanent('1234','TESTANGULAR',(evt: any)=>{
+          debugger;
+      })
+
     });
 
   }
