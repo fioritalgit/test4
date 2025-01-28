@@ -273,8 +273,6 @@ export class SAPconnectorService {
           //--> server messages
           this.connection.attachMessage(function (oControlEvent) {
 
-            debugger
-
             //--> deserialize as json
             try {
 
@@ -304,12 +302,8 @@ export class SAPconnectorService {
               }
 
               if (APCMessage.CONTEXT_TYPE === '*' || APCMessage.CONTEXT_TYPE === 'BROADCAST') {
-
-                //---> broadcasted messages must be handled in event function !!
-                this.fireEvent("onAPCmessage", {
-                  message: APCMessage,
-                  isBroadcastMessage: true
-                });
+                
+                //--> ?
 
               } else {
 
@@ -341,52 +335,12 @@ export class SAPconnectorService {
                     //---> relevant message ? handle it
                     if (isRelevantMessage === true) {
 
-                      this.fireEvent("onAPCmessage", {
-                        message: APCMessage,
-                        isBroadcastMessage: false
-                      });
-
-                      //--> show message ?
-                      if (this.listeners[idx].showMessageStrip === true) {
-
-                        var status = '';
-
-                        //--> check message type (set default if not provided)
-                        if (APCMessage.MESSAGE_TYPE == undefined || APCMessage.MESSAGE_TYPE == '') {
-                          APCMessage.MESSAGE_TYPE = 'I';
-                        }
-
-                        if (APCMessage.MESSAGE_ICON == undefined || APCMessage.MESSAGE_ICON == '') {
-                          APCMessage.MESSAGE_ICON = 'sap-icon://sys-enter';
-                        }
-
-                        switch (APCMessage.MESSAGE_TYPE) {
-                          case 'I':
-                            status = 'info';
-                            break;
-                          case 'W':
-                            status = 'warning';
-                            break;
-                          case 'E':
-                            status = 'error';
-                            break;
-                          default:
-                        }
-
-                        //---> fire the toast message
-                        new FioritalMessageStrip(APCMessage.MESSAGE, {
-                          status: status,
-                          icon: APCMessage.MESSAGE_ICON,
-                          timeout: 8000
-                        });
-
-                      }
-
                       //--> call the callback
                       if (this.listeners[idx].callBack !== undefined) {
                         try {
-                          this.listeners[idx].callBack.bind(this);
-                          this.listeners[idx].callBack(APCMessage); //----> delegated callback
+                          debugger
+                          this.listeners[idx].callBack.bind(this.listeners[idx].callBackRef); 
+                          this.listeners[idx].callBack(APCMessage,this.listeners[idx].callBackRef); //----> delegated callback
                         } catch (exccallback) {
                           //---> bad handling!
                         }
@@ -425,17 +379,7 @@ export class SAPconnectorService {
 
           //--> error handling
           this.connection.attachError(function (oControlEvent) {
-
-            this.UI5messageBox.show(
-              "RICARICARE PAGINA AL PIU PRESTO,SE IL PROBLEMA PERSISTE CONTATTARE REPARTO IT", {
-              icon: this.UI5messageBox.Icon.ERROR,
-              title: "ATTENZIONE!!! CONNESSIONE AL SERVER NON CONFERMATA!",
-              actions: [this.UI5messageBox.Action.YES]
-            }
-            );
-
             this.isMasterFail = true;
-
           }.bind(this));
 
           //--> onConnectionClose
@@ -498,7 +442,7 @@ export class SAPconnectorService {
     } while (fnd !== undefined);
   }
 
-  addListenerPermanent(contextId, contextType, callBack, showMessageStrip?) {
+  addListenerPermanent(contextId, contextType, callBack, callbackRef) {
     var listener = new Object();
     listener.permanent = true;
     listener.contextType = contextType;
@@ -539,12 +483,9 @@ export class SAPconnectorService {
     }
 
     listener.callBack = callBack; //<--- callback after message from server
+    listener.callBackRef = callbackRef;
+    listener.showMessageStrip = false; //<-- not allowed in angular
 
-    if ((showMessageStrip == undefined) || (showMessageStrip == true)) {
-      listener.showMessageStrip = true;
-    } else {
-      listener.showMessageStrip = false;
-    }
 
     this.listeners.push(listener);
   }

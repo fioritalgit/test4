@@ -11,18 +11,34 @@
 
 </style>
 
-<main class="main">
-  <div class="content">
+<main class="ui5-content-density-compact" >
+  <div class="content" style="height: 96%;">
 
-    <div style="height: 2em; flex-direction: row; display: flex;">
+    <ui5-tabcontainer noPad="true" style="height: 100%;">
+      <ui5-tab  text="Tab 1">    
+        <ag-grid-angular style="height: 100%;" #agGrid [rowData]="rowData" [columnDefs]="colDefs"
+        [getRowHeight]="getRowHeight" />
+      </ui5-tab>
+      <ui5-tab  text="Tab 2" selected>
+          <ui5-label>Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga magni facere error dicta beatae optio repudiandae vero, quidem voluptatibus perferendis eum maiores rem tempore voluptates aperiam eos enim delectus unde.</ui5-label>
+      </ui5-tab>
+      <ui5-tab  text="Tab 3">
+          <ui5-label>Dignissimos debitis architecto temporibus doloribus reiciendis libero rem nemo, nobis quidem dolor praesentium, beatae voluptatum iste eveniet, nam voluptatem obcaecati ducimus dolore.</ui5-label>
+      </ui5-tab>
+      <ui5-tab  text="Tab 4">
+          <ui5-label>Possimus ipsa eos impedit aut nisi repellendus recusandae, temporibus ducimus, necessitatibus tenetur facere, minima vero fugit rem reiciendis natus ratione quia numquam?</ui5-label>
+      </ui5-tab>
+      <ui5-tab-separator></ui5-tab-separator>
+      <ui5-tab text="Tab 5">
+          <ui5-label>Explicabo laboriosam ab consequuntur, qui dignissimos inventore sapiente ullam quaerat ratione libero vero, beatae laudantium! Aperiam numquam tempore, laudantium perferendis recusandae autem.</ui5-label>
+      </ui5-tab>
+  </ui5-tabcontainer>
+
+  <ui5-bar design="Footer">
       <button (click)="goCallSap()">call sap</button>
       <button (click)="goToCell()">goto cell</button>
       <ui5-input #ipt></ui5-input>
-    </div>
-
-
-    <ag-grid-angular style="height: 30em;" #agGrid [rowData]="rowData" [columnDefs]="colDefs"
-    [getRowHeight]="getRowHeight" />
+  </ui5-bar>
 
 
   </div>

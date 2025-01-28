@@ -13,6 +13,7 @@ import { AgGridAngular } from 'ag-grid-angular';
 
 import { HotkeysService, Hotkey } from 'angular2-hotkeys';
 
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -200,9 +201,9 @@ export class AppComponent implements AfterViewInit {
       //--> all services loaded and ready!
       console.log('done SAP');
 
-      this.SAP.addListenerPermanent('1234','TESTANGULAR',(evt: any)=>{
+      this.SAP.addListenerPermanent('1234','TESTANGULAR',(evt: any,objRef:any)=>{
           debugger;
-      })
+      },this); //<-- pass "this" as callback objRef
 
     });
 

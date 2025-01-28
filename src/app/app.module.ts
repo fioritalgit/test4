@@ -21,6 +21,16 @@ import { ToolbarButtonComponent } from '@ui5/webcomponents-ngx/main/toolbar-butt
 import { LabelComponent } from '@ui5/webcomponents-ngx/main/label';
 import { InputComponent } from '@ui5/webcomponents-ngx/main/input';
 import { DialogComponent } from '@ui5/webcomponents-ngx/main/dialog';
+import { TabComponent } from '@ui5/webcomponents-ngx/main/tab';
+import { TabContainerComponent } from '@ui5/webcomponents-ngx/main/tab-container';
+import { TabSeparatorComponent } from '@ui5/webcomponents-ngx/main/tab-separator';
+import { IconComponent } from '@ui5/webcomponents-ngx/main/icon';
+import { BarComponent } from '@ui5/webcomponents-ngx/main/bar';
+
+import '@ui5/webcomponents-icons/dist/palette.js';
+import "@ui5/webcomponents-icons/dist/activities.js";
+import "@ui5/webcomponents-icons/dist/menu.js";
+
 
 @NgModule({
   declarations: [
@@ -39,7 +49,12 @@ import { DialogComponent } from '@ui5/webcomponents-ngx/main/dialog';
     ToolbarButtonComponent,
     LabelComponent,
     InputComponent,
-    DialogComponent
+    DialogComponent,
+    TabComponent,
+    TabContainerComponent,
+    TabSeparatorComponent,
+    IconComponent,
+    BarComponent
   ],
   providers: [],
   bootstrap: [AppComponent]

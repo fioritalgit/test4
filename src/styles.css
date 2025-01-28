@@ -1,1 +1,22 @@
 /* You can add global styles to this file, and also import other style files */
+
+html,
+body {
+    height: 100%;
+    /* Ensure the root elements fill the viewport */
+    margin: 0;
+    /* Remove any default margin */
+}
+
+main {
+    height: 100%;
+    /* Make the <main> element fill its parent */
+    display: flex;
+    /* Optional: Use flexbox for better content alignment */
+    flex-direction: column;
+    /* Ensure the content stacks vertically */
+}
+
+ui5-tabcontainer[noPad="true"]::part(content) {
+    padding: 0px;
+}
