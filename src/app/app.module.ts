@@ -30,11 +30,15 @@ import { BarComponent } from '@ui5/webcomponents-ngx/main/bar';
 import '@ui5/webcomponents-icons/dist/palette.js';
 import "@ui5/webcomponents-icons/dist/activities.js";
 import "@ui5/webcomponents-icons/dist/menu.js";
+import "@ui5/webcomponents-icons/dist/navigation-right-arrow.js";
+
+import { CustomGroupRowCompComponent } from './custom-group-row-comp/custom-group-row-comp.component';
 
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    CustomGroupRowCompComponent
   ],
   imports: [
     BrowserModule,

@@ -15,11 +15,11 @@
   <div class="content" style="height: 96%;">
 
     <ui5-tabcontainer noPad="true" style="height: 100%;">
-      <ui5-tab  text="Tab 1">    
-        <ag-grid-angular style="height: 100%;" #agGrid [rowData]="rowData" [columnDefs]="colDefs"
+      <ui5-tab  text="pivot data" selected>    
+        <ag-grid-angular style="height: 100%;" #agGrid [rowData]="rowData" [columnDefs]="colDefs" [getRowStyle]="getRowStyle" [groupRowRenderer]="groupRowRenderer" [groupDisplayType]="groupDisplayType"
         [getRowHeight]="getRowHeight" />
       </ui5-tab>
-      <ui5-tab  text="Tab 2" selected>
+      <ui5-tab  text="Tab 2">
           <ui5-label>Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga magni facere error dicta beatae optio repudiandae vero, quidem voluptatibus perferendis eum maiores rem tempore voluptates aperiam eos enim delectus unde.</ui5-label>
       </ui5-tab>
       <ui5-tab  text="Tab 3">
@@ -35,9 +35,9 @@
   </ui5-tabcontainer>
 
   <ui5-bar design="Footer">
-      <button (click)="goCallSap()">call sap</button>
-      <button (click)="goToCell()">goto cell</button>
-      <ui5-input #ipt></ui5-input>
+      <button (click)="goCallSap()" slot="startContent">call sap</button>
+      <button (click)="goToCell()" slot="startContent">goto cell</button>
+      <ui5-input #ipt slot="endContent"></ui5-input>
   </ui5-bar>
 
 

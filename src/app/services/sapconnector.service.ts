@@ -338,7 +338,6 @@ export class SAPconnectorService {
                       //--> call the callback
                       if (this.listeners[idx].callBack !== undefined) {
                         try {
-                          debugger
                           this.listeners[idx].callBack.bind(this.listeners[idx].callBackRef); 
                           this.listeners[idx].callBack(APCMessage,this.listeners[idx].callBackRef); //----> delegated callback
                         } catch (exccallback) {

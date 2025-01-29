@@ -6,12 +6,13 @@
 
 */
 
-import { AfterViewInit, Component, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, HostListener, ViewChild } from '@angular/core';
 import { SAPconnectorService } from './services/sapconnector.service';
-import { ColDef, IRowNode } from 'ag-grid-enterprise';
+import { ColDef, IRowNode, RowGroupingDisplayType } from 'ag-grid-enterprise';
 import { AgGridAngular } from 'ag-grid-angular';
 
 import { HotkeysService, Hotkey } from 'angular2-hotkeys';
+import { CustomGroupRowCompComponent } from './custom-group-row-comp/custom-group-row-comp.component';
 
 
 @Component({
@@ -25,13 +26,16 @@ export class AppComponent implements AfterViewInit {
   @ViewChild('agGrid') grid!: AgGridAngular;
   @ViewChild('ipt') ipt!: any;
 
+  public groupDisplayType: RowGroupingDisplayType = "groupRows";
+  public groupRowRenderer: any = CustomGroupRowCompComponent;
+
   public lastSearchString: string = ''
   public searchIndex: number = 0
   public searchTargets: Array<IRowNode> = [];
   listeners = []
 
   // Row Data: The data to be displayed.
-  rowData = [
+  rowData : any = [
     { make: "Tesla", model: "Model Y", price: 64950, electric: true },
     { make: "Tesla", model: "Model Y", price: 64950, electric: true },
     { make: "Tesla", model: "Model Y", price: 64950, electric: true },
@@ -56,14 +60,36 @@ export class AppComponent implements AfterViewInit {
 
   // Column Definitions: Defines the columns to be displayed.
   colDefs: ColDef[] = [
-    { field: "make", rowGroup: true },
+    { field: "make", rowGroup: true ,valueGetter: (p:any) => {
+      p.data.rowRef = p.node //<-- store row ref
+      return p.data.make
+    }},
     { field: "model" },
     { field: "price" },
     { field: "electric" }
   ];
 
+
+  @HostListener('window:beforeunload', ['$event'])
+  handleBeforeUnload(event: Event): void {
+    // Execute your code here (e.g., saving data, cleanup)
+    debugger
+    console.log('Tab is closing!');
+    // Optionally, you can display a confirmation dialog (deprecated in modern browsers)
+    // event.returnValue = ''; // Uncomment this to display a confirmation dialog in older browsers
+  }
+
+
   constructor(private SAP: SAPconnectorService, private hotkeysService: HotkeysService) {
     //--> inject services
+  }
+
+  getRowStyle(params:any){
+    if (params.node.group) {
+      return { background: '#317ca41a' };
+    }else{
+      return
+    }
   }
 
   public getRowHeight(params: any) {
@@ -78,7 +104,9 @@ export class AppComponent implements AfterViewInit {
 
     this.SAP.clearParameters('gr');
     this.SAP.callFunction('gr', 'TEST_APC', 'SYNC1').then((data) => {
-
+      this.rowData[0].price = this.rowData[0].price + 1
+      this.grid.api.refreshCells({force:true,rowNodes:[this.rowData[0].rowRef],suppressFlash:false})
+      this.grid.api.flashCells({rowNodes:[this.rowData[0].rowRef]})
     }).catch((err) => {
       console.log('Error calling SAP')
     })
@@ -202,7 +230,7 @@ export class AppComponent implements AfterViewInit {
       console.log('done SAP');
 
       this.SAP.addListenerPermanent('1234','TESTANGULAR',(evt: any,objRef:any)=>{
-          debugger;
+          
       },this); //<-- pass "this" as callback objRef
 
     });

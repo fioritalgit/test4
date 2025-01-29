@@ -1,0 +1,13 @@
+<div [style.paddingLeft.px]="paddingLeft">
+    @if (isGroup) {
+    
+        <div [style.transform]="rotation" [style.cursor]="'pointer'" [style.display]="'inline-block'" style="padding-top: 1em;padding-left: 1em;"
+            (click)="onClick()">
+            <ui5-icon name="navigation-right-arrow"/>
+        </div>
+    
+    }
+    
+    &nbsp;
+    {{ params.value }}
+</div>
