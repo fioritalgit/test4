@@ -1,9 +1,7 @@
 import { Component, ElementRef, ViewChild, viewChild } from '@angular/core';
 import { ICellRendererAngularComp } from 'ag-grid-angular';
 import { ICellRendererParams, IRowNode } from 'ag-grid-community';
-
-import { SAPconnectorService } from '../services/sapconnector.service';
-import { GlobalcontextService } from '../services/globalcontext.service';
+import { GlobalcontextService, tModifyFilterResult } from '../services/globalcontext.service';
 
 
 
@@ -23,6 +21,7 @@ export class CustomGroupRowCompComponent implements ICellRendererAngularComp{
   public isGroup!: boolean;
   public rotation!: string;
   public rowData: any;
+  public filterRes: tModifyFilterResult = {activeFilter:false, hasVisibleItems:false};
 
 
   constructor(private globalContext: GlobalcontextService){
@@ -44,21 +43,18 @@ export class CustomGroupRowCompComponent implements ICellRendererAngularComp{
 
   setFiltering(){
 
-    debugger
-
     //--> handle specific fields filtering
     var filterId = ''
     if (this.searchRef.elementRef.nativeElement.getAttribute('filterId') !== null){
       filterId = this.searchRef.elementRef.nativeElement.getAttribute('filterId')
     }
 
-    
     //---> get data from first child row
     if (this.params.node.allLeafChildren !== null){
         var rowData = this.params.node.allLeafChildren[0].data        
         
         this.globalContext.addSearchReference({rowType: rowData.rowType, searchTerm: this.searchRef.elementRef.nativeElement.value, filterId: filterId})
-        this.globalContext.setFilterProperties(this.rowData)
+        this.filterRes = this.globalContext.setFilterProperties(this.rowData,rowData.rowType)
 
         this.params.api.onFilterChanged()
     }else{

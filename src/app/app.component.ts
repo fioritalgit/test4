@@ -42,22 +42,22 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   //---> DEFINE CUSTOM FILTER FUNCTIONS
   private filterFunctionExample: tFilterFunction = (sdata: any, searchTerm: string)=>{
-    return true  //<-- true = visible, not filtered
+    return sdata.model.toUpperCase().includes(searchTerm.toUpperCase())
   }
 
 
   // Row Data: The data to be displayed.
   rowData: any = [
     { rowType: "Tesla", model: "Model Y", price: 64950, electric: true },
-    { rowType: "Tesla", model: "Model Y", price: 64950, electric: true },
-    { rowType: "Tesla", model: "Model Y", price: 64950, electric: true },
+    { rowType: "Tesla", model: "Model K", price: 64950, electric: true },
+    { rowType: "Tesla", model: "Model K", price: 64950, electric: true },
     { rowType: "Ford", model: "F-Series", price: 33850, electric: false },
     { rowType: "Toyota", model: "Corolla", price: 29600, electric: false },
-    { rowType: "Tesla", model: "Model Y", price: 64950, electric: true },
-    { rowType: "Ford", model: "F-Series", price: 33850, electric: false },
+    { rowType: "Tesla", model: "Model H", price: 64950, electric: true },
+    { rowType: "Ford", model: "F-Series 2", price: 33850, electric: false },
     { rowType: "Toyota", model: "Corolla", price: 29600, electric: false },
-    { rowType: "Tesla", model: "Model Y", price: 64950, electric: true },
-    { rowType: "Ford", model: "F-Series", price: 33850, electric: false },
+    { rowType: "Tesla", model: "Model Z", price: 64950, electric: true },
+    { rowType: "Ford", model: "F-Series 3", price: 33850, electric: false },
     { rowType: "Toyota", model: "Corolla", price: 29600, electric: false },
     { rowType: "Tesla", model: "Model Y", price: 64950, electric: true },
     { rowType: "Ford", model: "F-Series", price: 33850, electric: false },
@@ -105,16 +105,13 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   //---> filtering
   doesExternalFilterPass = (node: IRowNode<any>): boolean => {
-
-    //TODO
-    
-    return true;
+    return this.globalContext.testNode(node) //<-- delegate filtering
   };
 
   isExternalFilterPresent = (): boolean => {
-    // if ageType is not everyone, then we are filtering
     return true;
   };
+
 
   getRowStyle(params: any) {
     if (params.node.group) {
