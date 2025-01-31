@@ -154,6 +154,10 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   }
 
+  public clearAllFilters(){
+    this.globalContext.clearAllRowTypeFilters()
+  }
+
   public goToCell() {
     this.grid.api.ensureNodeVisible(this.grid.api.getRowNode('14'), "middle")
     setTimeout(() => {
@@ -232,6 +236,7 @@ export class AppComponent implements AfterViewInit, OnInit {
   ngAfterViewInit(): void {
 
     //--> set Filtering functions '*' is valid for all groups! this function is called when inputbox of single group line is fired, '*' means valid for all row types
+    this.globalContext.setAPI(this.grid.api)
     this.globalContext.setFilterFunction('*',this.filterFunctionExample,'filtertype1')
 
 

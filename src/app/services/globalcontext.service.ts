@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { IRowNode } from 'ag-grid-enterprise';
+import { GridApi, IRowNode } from 'ag-grid-enterprise';
 
 export type tFilterFunction = (sdata: any, searchTerm: string) => boolean;
 export type tFilterFields = string[]
@@ -13,6 +13,7 @@ export interface IsearchReference {
   rowType?: string | '';
   filterId: string | '';
   searchTerm: string | '';
+  groupComponentRef: any
 }
 
 export type ISearchReferenceArray = Array<IsearchReference>;
@@ -27,9 +28,31 @@ export class GlobalcontextService {
   public searchTargets: ISearchReferenceArray = [];
   public filterFunctions: tbFilterFunction = [] //<-- filter functions
   public filterStatuses: any = {}
+  public api: any 
 
   constructor() {
 
+  }
+
+  public clearAllRowTypeFilters(){
+
+    this.searchTargets.forEach((ssearch)=>{
+      ssearch.groupComponentRef.searchInputRef.elementRef.nativeElement.value = '';
+      ssearch.groupComponentRef.filterRes.activeFilter = false
+      ssearch.groupComponentRef.filterRes.hasVisibleItems = false
+    })
+    this.searchTargets = []
+    this.filterStatuses = {}
+
+    this.api.getGridOption('rowData').forEach((sdata:any)=>{
+      sdata.__clientFiltering = undefined
+    })
+
+    this.api.onFilterChanged() //<--- trigger grid refresh!
+  }
+
+  public setAPI(api: GridApi){
+    this.api = api
   }
 
   setFilterFunction(rowType: string, filterFunction: tFilterFunction, filterId?: string) {
@@ -110,10 +133,17 @@ export class GlobalcontextService {
           
           sdata.__clientFiltering = activeFilterFunction.filterFunction(sdata, ssearch.searchTerm)
 
-          if (ssearch.rowType === rowTypeCaller){
+          if (rowTypeCaller === '*' || ssearch.rowType === rowTypeCaller){
             res.activeFilter = true
             if (sdata.__clientFiltering === true){
               res.hasVisibleItems = true
+            }
+
+            //--> map filter status for rowType for global filtering
+            if(rowTypeCaller === '*'){
+              this.filterStatuses[ssearch.rowType] = res
+            }else{
+              this.filterStatuses[rowTypeCaller] = res
             }
             
           }
@@ -124,7 +154,7 @@ export class GlobalcontextService {
     })
 
     //--> map filter status for rowType for global filtering
-    this.filterStatuses[rowTypeCaller] = res
+    
 
     //--> pass result to display filter icons and more
     return res

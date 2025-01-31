@@ -14,7 +14,7 @@ import { GlobalcontextService, tModifyFilterResult } from '../services/globalcon
 })
 export class CustomGroupRowCompComponent implements ICellRendererAngularComp{
 
-  @ViewChild('iptsearch') searchRef!: any;
+  @ViewChild('iptsearch') searchInputRef!: any;
 
   public params!: ICellRendererParams;
   public paddingLeft!: number;
@@ -45,22 +45,26 @@ export class CustomGroupRowCompComponent implements ICellRendererAngularComp{
 
     //--> handle specific fields filtering
     var filterId = ''
-    if (this.searchRef.elementRef.nativeElement.getAttribute('filterId') !== null){
-      filterId = this.searchRef.elementRef.nativeElement.getAttribute('filterId')
+    if (this.searchInputRef.elementRef.nativeElement.getAttribute('filterId') !== null){
+      filterId = this.searchInputRef.elementRef.nativeElement.getAttribute('filterId')
     }
 
     //---> get data from first child row
     if (this.params.node.allLeafChildren !== null){
         var rowData = this.params.node.allLeafChildren[0].data        
         
-        this.globalContext.addSearchReference({rowType: rowData.rowType, searchTerm: this.searchRef.elementRef.nativeElement.value, filterId: filterId})
+        this.globalContext.addSearchReference({rowType: rowData.rowType, searchTerm: this.searchInputRef.elementRef.nativeElement.value, filterId: filterId, groupComponentRef:this})
         this.filterRes = this.globalContext.setFilterProperties(this.rowData,rowData.rowType)
 
-        this.params.api.onFilterChanged()
+        this.params.api.onFilterChanged() //<--- trigger grid refresh!
     }else{
       return
     }
     
+  }
+
+  removeFilter(){
+
   }
 
   refresh(params: ICellRendererParams) {

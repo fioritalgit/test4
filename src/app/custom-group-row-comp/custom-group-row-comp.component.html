@@ -11,5 +11,7 @@
     &nbsp;
     {{ params.value }}
     &nbsp;&nbsp;
-    <ui5-input #iptsearch slot="endContent" (change)="setFiltering()" filterId="filtertype1" filterBoolean="OR"></ui5-input>
+    <ui5-input #iptsearch slot="endContent" (change)="setFiltering()" filterId="filtertype1"></ui5-input>
+    <ui5-button icon="clear-filter" *ngIf="filterRes.activeFilter && filterRes.hasVisibleItems === true"  design="Transparent" (click)="removeFilter()"/>
+    <ui5-button icon="question-mark" *ngIf="filterRes.activeFilter && filterRes.hasVisibleItems === false"  design="Transparent" (click)="removeFilter()" class="iconFilterClassFailed"/>
 </div>
