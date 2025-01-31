@@ -6,14 +6,16 @@
 
 */
 
-import { AfterViewInit, Component, HostListener, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { SAPconnectorService } from './services/sapconnector.service';
-import { ColDef, IRowNode, RowGroupingDisplayType } from 'ag-grid-enterprise';
+import { ApplyColumnStateParams, ColDef, IRowNode, RowGroupingDisplayType } from 'ag-grid-enterprise';
 import { AgGridAngular } from 'ag-grid-angular';
 
 import { HotkeysService, Hotkey } from 'angular2-hotkeys';
 import { CustomGroupRowCompComponent } from './custom-group-row-comp/custom-group-row-comp.component';
 
+import { NavigationStart, Router } from '@angular/router';
+import { GlobalcontextService, ISearchReferenceArray, tFilterFields, tFilterFunction } from './services/globalcontext.service';
 
 @Component({
   selector: 'app-root',
@@ -21,7 +23,7 @@ import { CustomGroupRowCompComponent } from './custom-group-row-comp/custom-grou
   standalone: false,
   styleUrl: './app.component.css'
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements AfterViewInit, OnInit {
 
   @ViewChild('agGrid') grid!: AgGridAngular;
   @ViewChild('ipt') ipt!: any;
@@ -34,36 +36,48 @@ export class AppComponent implements AfterViewInit {
   public searchTargets: Array<IRowNode> = [];
   listeners = []
 
+  private router: any;  // subscription to route observer
+  private routeSub: any;  // subscription to route observer
+
+
+  //---> DEFINE CUSTOM FILTER FUNCTIONS
+  private filterFunctionExample: tFilterFunction = (sdata: any, searchTerm: string)=>{
+    return true  //<-- true = visible, not filtered
+  }
+
+
   // Row Data: The data to be displayed.
-  rowData : any = [
-    { make: "Tesla", model: "Model Y", price: 64950, electric: true },
-    { make: "Tesla", model: "Model Y", price: 64950, electric: true },
-    { make: "Tesla", model: "Model Y", price: 64950, electric: true },
-    { make: "Ford", model: "F-Series", price: 33850, electric: false },
-    { make: "Toyota", model: "Corolla", price: 29600, electric: false },
-    { make: "Tesla", model: "Model Y", price: 64950, electric: true },
-    { make: "Ford", model: "F-Series", price: 33850, electric: false },
-    { make: "Toyota", model: "Corolla", price: 29600, electric: false },
-    { make: "Tesla", model: "Model Y", price: 64950, electric: true },
-    { make: "Ford", model: "F-Series", price: 33850, electric: false },
-    { make: "Toyota", model: "Corolla", price: 29600, electric: false },
-    { make: "Tesla", model: "Model Y", price: 64950, electric: true },
-    { make: "Ford", model: "F-Series", price: 33850, electric: false },
-    { make: "Toyota", model: "Corolla", price: 29600, electric: false },
-    { make: "Tesla", model: "Model Y", price: 64950, electric: true },
-    { make: "Ford", model: "F-Series", price: 33850, electric: false },
-    { make: "Toyota", model: "Corolla", price: 29600, electric: false },
-    { make: "Tesla", model: "Model Y", price: 64950, electric: true },
-    { make: "Ford", model: "F-Series", price: 33850, electric: false },
-    { make: "Toyota", model: "Corolla", price: 29600, electric: false },
+  rowData: any = [
+    { rowType: "Tesla", model: "Model Y", price: 64950, electric: true },
+    { rowType: "Tesla", model: "Model Y", price: 64950, electric: true },
+    { rowType: "Tesla", model: "Model Y", price: 64950, electric: true },
+    { rowType: "Ford", model: "F-Series", price: 33850, electric: false },
+    { rowType: "Toyota", model: "Corolla", price: 29600, electric: false },
+    { rowType: "Tesla", model: "Model Y", price: 64950, electric: true },
+    { rowType: "Ford", model: "F-Series", price: 33850, electric: false },
+    { rowType: "Toyota", model: "Corolla", price: 29600, electric: false },
+    { rowType: "Tesla", model: "Model Y", price: 64950, electric: true },
+    { rowType: "Ford", model: "F-Series", price: 33850, electric: false },
+    { rowType: "Toyota", model: "Corolla", price: 29600, electric: false },
+    { rowType: "Tesla", model: "Model Y", price: 64950, electric: true },
+    { rowType: "Ford", model: "F-Series", price: 33850, electric: false },
+    { rowType: "Toyota", model: "Corolla", price: 29600, electric: false },
+    { rowType: "Tesla", model: "Model Y", price: 64950, electric: true },
+    { rowType: "Ford", model: "F-Series", price: 33850, electric: false },
+    { rowType: "Toyota", model: "Corolla", price: 29600, electric: false },
+    { rowType: "Tesla", model: "Model Y", price: 64950, electric: true },
+    { rowType: "Ford", model: "F-Series", price: 33850, electric: false },
+    { rowType: "Toyota", model: "Corolla", price: 29600, electric: false },
   ];
 
   // Column Definitions: Defines the columns to be displayed.
   colDefs: ColDef[] = [
-    { field: "make", rowGroup: true ,valueGetter: (p:any) => {
-      p.data.rowRef = p.node //<-- store row ref
-      return p.data.make
-    }},
+    {
+      field: "rowType", rowGroup: true, valueGetter: (p: any) => {
+        p.data.rowRef = p.node //<-- store row ref
+        return p.data.rowType
+      }
+    },
     { field: "model" },
     { field: "price" },
     { field: "electric" }
@@ -71,23 +85,41 @@ export class AppComponent implements AfterViewInit {
 
 
   @HostListener('window:beforeunload', ['$event'])
-  handleBeforeUnload(event: Event): void {
-    // Execute your code here (e.g., saving data, cleanup)
-    debugger
-    console.log('Tab is closing!');
-    // Optionally, you can display a confirmation dialog (deprecated in modern browsers)
-    // event.returnValue = ''; // Uncomment this to display a confirmation dialog in older browsers
+  async handleBeforeUnload(event: Event) {
+
+    console.log('>>>>> leaving <<<<<<<')
+    this.SAP.clearParameters('gr');
+    await this.SAP.callFunction('gr', 'TEST_APC', 'SYNC1')
+
   }
 
-
-  constructor(private SAP: SAPconnectorService, private hotkeysService: HotkeysService) {
+  constructor(private SAP: SAPconnectorService, private hotkeysService: HotkeysService, router: Router, private globalContext: GlobalcontextService) {
     //--> inject services
+    this.router = router
+    this.globalContext = globalContext
   }
 
-  getRowStyle(params:any){
+  ngOnInit(): void {
+   
+  }
+
+  //---> filtering
+  doesExternalFilterPass = (node: IRowNode<any>): boolean => {
+
+    //TODO
+    
+    return true;
+  };
+
+  isExternalFilterPresent = (): boolean => {
+    // if ageType is not everyone, then we are filtering
+    return true;
+  };
+
+  getRowStyle(params: any) {
     if (params.node.group) {
       return { background: '#317ca41a' };
-    }else{
+    } else {
       return
     }
   }
@@ -100,13 +132,25 @@ export class AppComponent implements AfterViewInit {
     }
   }
 
+  public hideColumns() {
+
+    //--> get the state ol ALL columns
+    var st = this.grid.api.getColumnState()
+
+    //---> set visibility (hide) for wanted columns
+    st[1].hide = true
+
+    //--> set the state for ALL columns (auto refresh)
+    this.grid.api.applyColumnState({ state: st })
+  }
+
   public goCallSap() {
 
     this.SAP.clearParameters('gr');
     this.SAP.callFunction('gr', 'TEST_APC', 'SYNC1').then((data) => {
       this.rowData[0].price = this.rowData[0].price + 1
-      this.grid.api.refreshCells({force:true,rowNodes:[this.rowData[0].rowRef],suppressFlash:false})
-      this.grid.api.flashCells({rowNodes:[this.rowData[0].rowRef]})
+      this.grid.api.refreshCells({ force: true, rowNodes: [this.rowData[0].rowRef], suppressFlash: false })
+      this.grid.api.flashCells({ rowNodes: [this.rowData[0].rowRef] })
     }).catch((err) => {
       console.log('Error calling SAP')
     })
@@ -116,31 +160,24 @@ export class AppComponent implements AfterViewInit {
   public goToCell() {
     this.grid.api.ensureNodeVisible(this.grid.api.getRowNode('14'), "middle")
     setTimeout(() => {
-      this.grid.api.setFocusedCell(14, 'make');
+      this.grid.api.setFocusedCell(14, 'rowType');
     }, 0);
   }
 
   private _gotoCell(node: IRowNode) {
 
     //--> ensure parent node is expanded
-    if (node.parent?.expanded){      
+    if (node.parent?.expanded) {
       this.grid.api.ensureNodeVisible(node, "middle")
-      this.grid.api.flashCells({ rowNodes: [node], columns: ['make'] })
-    }else{
+      this.grid.api.flashCells({ rowNodes: [node], columns: ['rowType'] })
+    } else {
       node.parent?.setExpanded(true)
       setTimeout(() => {
         this.grid.api.ensureNodeVisible(node, "middle")
-        this.grid.api.flashCells({ rowNodes: [node], columns: ['make'] })     
+        this.grid.api.flashCells({ rowNodes: [node], columns: ['rowType'] })
       }, 0);
     }
 
-
-
-    /*setTimeout(() => {
-       if (node.rowIndex !== null){
-         this.grid.api.setFocusedCell(node.rowIndex, 'make');
-       }        
-     }, 0);*/
   }
 
   public onSearchKeyDown(evt: any) {
@@ -154,7 +191,7 @@ export class AppComponent implements AfterViewInit {
         this.searchTargets = []
         this.grid.api.forEachNodeAfterFilter((rnode: IRowNode, idx: number) => {
           if (!rnode.group) {
-            if (rnode.data.make.toUpperCase().includes(this.ipt.elementRef.nativeElement.value.toUpperCase())) {
+            if (rnode.data.rowType.toUpperCase().includes(this.ipt.elementRef.nativeElement.value.toUpperCase())) {
               this.searchTargets?.push(rnode)
             }
           }
@@ -194,13 +231,14 @@ export class AppComponent implements AfterViewInit {
   }
 
 
-
-
-
   //--------------------------------------- start SAP service
-
   ngAfterViewInit(): void {
 
+    //--> set Filtering functions '*' is valid for all groups! this function is called when inputbox of single group line is fired, '*' means valid for all row types
+    this.globalContext.setFilterFunction('*',this.filterFunctionExample,'filtertype1')
+
+
+    //--> manage the events of focus on global search field
     this.ipt.elementRef.nativeElement.addEventListener('keydown', this.onSearchKeyDown.bind(this));
     this.ipt.elementRef.nativeElement.addEventListener('focusin', this.onSearchKeyFocusIn.bind(this));
     this.ipt.elementRef.nativeElement.addEventListener('focusout', this.onSearchKeyFocusOut.bind(this));
@@ -209,8 +247,8 @@ export class AppComponent implements AfterViewInit {
     this.hotkeysService.add(
       new Hotkey('ctrl+f', (event: KeyboardEvent): boolean => {
         this.ipt.elementRef.nativeElement.focus()
-        event.preventDefault(); 
-        return false; 
+        event.preventDefault();
+        return false;
       })
     );
 
@@ -229,9 +267,9 @@ export class AppComponent implements AfterViewInit {
       //--> all services loaded and ready!
       console.log('done SAP');
 
-      this.SAP.addListenerPermanent('1234','TESTANGULAR',(evt: any,objRef:any)=>{
-          
-      },this); //<-- pass "this" as callback objRef
+      this.SAP.addListenerPermanent('1234', 'TESTANGULAR', (evt: any, objRef: any) => {
+
+      }, this); //<-- pass "this" as callback objRef
 
     });
 
