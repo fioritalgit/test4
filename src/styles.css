@@ -20,3 +20,26 @@ main {
 ui5-tabcontainer[noPad="true"]::part(content) {
     padding: 0px;
 }
+
+
+.cellNote {}
+
+/* Triangle in the top-right corner */
+.cellNote::after {
+    margin-top: 0.4em;
+    margin-right: 0.3em;
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 0;
+    height: 0;
+    border-top: 8px solid #0064d98a;
+    /* Triangle color */
+    border-left: 8px solid transparent;
+    /* Transparent left side */
+}
+
+.confirmedValue{
+    background-color: #30914c30
+  }

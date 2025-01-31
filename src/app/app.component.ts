@@ -2,7 +2,8 @@
 
 - differenziata altezza righe grouping
 - aggiunta libreria per hot-key e logica search & focus a giro
-
+- CSS (callback) per note presenti
+- style (callback) per colore di fondo su confermati
 
 */
 
@@ -16,6 +17,7 @@ import { CustomGroupRowCompComponent } from './custom-group-row-comp/custom-grou
 
 import { NavigationStart, Router } from '@angular/router';
 import { GlobalcontextService, ISearchReferenceArray, tFilterFields, tFilterFunction } from './services/globalcontext.service';
+import { ValueCellRendererComponent } from './value-cell-renderer/value-cell-renderer.component';
 
 @Component({
   selector: 'app-root',
@@ -41,19 +43,19 @@ export class AppComponent implements AfterViewInit, OnInit {
 
 
   //---> DEFINE CUSTOM FILTER FUNCTIONS
-  private filterFunctionExample: tFilterFunction = (sdata: any, searchTerm: string)=>{
+  private filterFunctionExample: tFilterFunction = (sdata: any, searchTerm: string) => {
     return sdata.model.toUpperCase().includes(searchTerm.toUpperCase())
   }
 
 
   // Row Data: The data to be displayed.
   rowData: any = [
-    { rowType: "Tesla", model: "Model Y", price: 64950, electric: true },
-    { rowType: "Tesla", model: "Model K", price: 64950, electric: true },
-    { rowType: "Tesla", model: "Model K", price: 64950, electric: true },
+    { rowType: "Tesla", model: "Model Y", price: 64950, electric: true , SAPvalue: 3456 , confirmed: true},
+    { rowType: "Tesla", model: "Model K", price: 64950, electric: true, hasNote: true },
+    { rowType: "Tesla", model: "Model K", price: 64950, electric: true , SAPvalue: 3456},
     { rowType: "Ford", model: "F-Series", price: 33850, electric: false },
-    { rowType: "Toyota", model: "Corolla", price: 29600, electric: false },
-    { rowType: "Tesla", model: "Model H", price: 64950, electric: true },
+    { rowType: "Toyota", model: "Corolla", price: 29600, electric: false, hasNote: true },
+    { rowType: "Tesla", model: "Model H", price: 64950, electric: true , confirmed: true},
     { rowType: "Ford", model: "F-Series 2", price: 33850, electric: false },
     { rowType: "Toyota", model: "Corolla", price: 29600, electric: false },
     { rowType: "Tesla", model: "Model Z", price: 64950, electric: true },
@@ -79,7 +81,12 @@ export class AppComponent implements AfterViewInit, OnInit {
       }
     },
     { field: "model" },
-    { field: "price" },
+
+    //---------------------------------
+    {
+      field: "price",
+      cellRenderer: ValueCellRendererComponent
+    },
     { field: "electric" }
   ];
 
@@ -100,7 +107,7 @@ export class AppComponent implements AfterViewInit, OnInit {
   }
 
   ngOnInit(): void {
-   
+
   }
 
   //---> filtering
@@ -154,7 +161,7 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   }
 
-  public clearAllFilters(){
+  public clearAllFilters() {
     this.globalContext.clearAllRowTypeFilters()
   }
 
@@ -237,7 +244,7 @@ export class AppComponent implements AfterViewInit, OnInit {
 
     //--> set Filtering functions '*' is valid for all groups! this function is called when inputbox of single group line is fired, '*' means valid for all row types
     this.globalContext.setAPI(this.grid.api)
-    this.globalContext.setFilterFunction('*',this.filterFunctionExample,'filtertype1')
+    this.globalContext.setFilterFunction('*', this.filterFunctionExample, 'filtertype1')
 
 
     //--> manage the events of focus on global search field
