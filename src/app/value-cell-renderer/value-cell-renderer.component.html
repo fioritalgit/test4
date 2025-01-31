@@ -2,4 +2,4 @@
 <div class="container" [ngClass]="{ 'confirmedValue': this.params?.data.confirmed === true , 'cellNote': this.params?.data.hasNote === true}">
     <span>{{this.params?.data.price}}</span>
     <span style="padding-right: 0.5em;font-size:0.8em;color:darkgrey" *ngIf="this.params?.data.SAPvalue !== undefined">({{this.params?.data.SAPvalue}})</span>
-  </div>
+</div>

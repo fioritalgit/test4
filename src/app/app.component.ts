@@ -2,8 +2,7 @@
 
 - differenziata altezza righe grouping
 - aggiunta libreria per hot-key e logica search & focus a giro
-- CSS (callback) per note presenti
-- style (callback) per colore di fondo su confermati
+- componente custom per renderer valori con CSS note e classe sfondo per stato confermato
 
 */
 
@@ -15,7 +14,7 @@ import { AgGridAngular } from 'ag-grid-angular';
 import { HotkeysService, Hotkey } from 'angular2-hotkeys';
 import { CustomGroupRowCompComponent } from './custom-group-row-comp/custom-group-row-comp.component';
 
-import { NavigationStart, Router } from '@angular/router';
+import {  Router } from '@angular/router';
 import { GlobalcontextService, ISearchReferenceArray, tFilterFields, tFilterFunction } from './services/globalcontext.service';
 import { ValueCellRendererComponent } from './value-cell-renderer/value-cell-renderer.component';
 
@@ -50,7 +49,7 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   // Row Data: The data to be displayed.
   rowData: any = [
-    { rowType: "Tesla", model: "Model Y", price: 64950, electric: true , SAPvalue: 3456 , confirmed: true},
+    { rowType: "Tesla", model: "Model Y", price: 123, electric: true , SAPvalue: 3456 , confirmed: true},
     { rowType: "Tesla", model: "Model K", price: 64950, electric: true, hasNote: true },
     { rowType: "Tesla", model: "Model K", price: 64950, electric: true , SAPvalue: 3456},
     { rowType: "Ford", model: "F-Series", price: 33850, electric: false },
