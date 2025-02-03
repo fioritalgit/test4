@@ -37,7 +37,6 @@ import "@ui5/webcomponents-icons/dist/navigation-right-arrow.js";
 import { CustomGroupRowCompComponent } from './custom-group-row-comp/custom-group-row-comp.component';
 import { ValueCellRendererComponent } from './value-cell-renderer/value-cell-renderer.component';
 
-
 @NgModule({
   declarations: [
     AppComponent,

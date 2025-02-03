@@ -1,11 +1,3 @@
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * * * The content below * * * * * * * * * * * -->
-<!-- * * * * * * * * * * is only a placeholder * * * * * * * * * * -->
-<!-- * * * * * * * * * * and can be replaced.  * * * * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
-<!-- * * * * * * * * * Delete the template below * * * * * * * * * -->
-<!-- * * * * * * * to get started with your project! * * * * * * * -->
-<!-- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * -->
 
 <style>
 
@@ -20,7 +12,8 @@
         [getRowHeight]="getRowHeight" [doesExternalFilterPass]="doesExternalFilterPass" [isExternalFilterPresent]="isExternalFilterPresent"/>
       </ui5-tab>
       <ui5-tab  text="Tab 2">
-          <ui5-label>Lorem ipsum dolor sit amet consectetur adipisicing elit. Fuga magni facere error dicta beatae optio repudiandae vero, quidem voluptatibus perferendis eum maiores rem tempore voluptates aperiam eos enim delectus unde.</ui5-label>
+        <ag-grid-angular style="height: 100%;" #agGridPivot [rowData]="rowData" [columnDefs]="colDefs" [getRowStyle]="getRowStyle" [groupRowRenderer]="groupRowRenderer" [groupDisplayType]="groupDisplayType"
+        [getRowHeight]="getRowHeight" [doesExternalFilterPass]="doesExternalFilterPass" [isExternalFilterPresent]="isExternalFilterPresent"/>
       </ui5-tab>
       <ui5-tab  text="Tab 3">
           <ui5-label>Dignissimos debitis architecto temporibus doloribus reiciendis libero rem nemo, nobis quidem dolor praesentium, beatae voluptatum iste eveniet, nam voluptatem obcaecati ducimus dolore.</ui5-label>

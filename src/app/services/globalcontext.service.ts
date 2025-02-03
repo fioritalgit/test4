@@ -9,7 +9,6 @@ type tbFilterFunction = tFilterFunctionObject[];
 export type tModifyFilterResult = {activeFilter: boolean, hasVisibleItems: boolean}
 
 export interface IsearchReference {
-  /** True if the column is hidden */
   rowType?: string | '';
   filterId: string | '';
   searchTerm: string | '';
@@ -152,9 +151,6 @@ export class GlobalcontextService {
       })
 
     })
-
-    //--> map filter status for rowType for global filtering
-    
 
     //--> pass result to display filter icons and more
     return res

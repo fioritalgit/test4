@@ -8,10 +8,10 @@ import { GlobalcontextService, tModifyFilterResult } from '../services/globalcon
 @Component({
   selector: 'app-custom-group-row-comp',
   standalone: false,
-
   templateUrl: './custom-group-row-comp.component.html',
   styleUrl: './custom-group-row-comp.component.css'
 })
+
 export class CustomGroupRowCompComponent implements ICellRendererAngularComp {
 
   @ViewChild('iptsearch') searchInputRef!: any;

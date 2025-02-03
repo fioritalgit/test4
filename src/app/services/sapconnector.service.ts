@@ -25,7 +25,7 @@ export class SAPconnectorService {
 
   constructor() {
     this.listeners = [] //<-- clear listeners array
-   }
+  }
 
   getSAPconnection(serviceId: string) {
     return sap = this.sapConnections.find((ssap) => {
@@ -302,44 +302,26 @@ export class SAPconnectorService {
               }
 
               if (APCMessage.CONTEXT_TYPE === '*' || APCMessage.CONTEXT_TYPE === 'BROADCAST') {
-                
+
                 //--> ?
 
               } else {
 
                 for (var idx = 0; idx < this.listeners.length; idx++) {
-                  var isRelevantMessage = true;
 
                   if (this.listeners[idx].contextType === '' || this.listeners[idx].contextType === '*' || this.listeners[idx].contextType === APCMessage.CONTEXT_TYPE) {
 
-                    if ((this.listeners[idx].Id1 !== undefined) && (this.listeners[idx].Id1 !== APCMessage.CONTEXT)) {
-                      isRelevantMessage = false;
-                    }
-
-                    if (this.listeners[idx].Id2 !== '' && this.listeners[idx].Id2 !== undefined && this.listeners[idx].Id2 !== APCMessage.CONTEXT_P1) {
-                      isRelevantMessage = false;
-                    }
-
-                    if (this.listeners[idx].Id3 !== '' && this.listeners[idx].Id3 !== undefined && this.listeners[idx].Id3 !== APCMessage.CONTEXT_P2) {
-                      isRelevantMessage = false;
-                    }
-
-                    if (this.listeners[idx].Id4 !== '' && this.listeners[idx].Id4 !== undefined && this.listeners[idx].Id4 !== APCMessage.CONTEXT_P3) {
-                      isRelevantMessage = false;
-                    }
-
-                    if (this.listeners[idx].Id5 !== '' && this.listeners[idx].Id5 !== undefined && this.listeners[idx].Id5 !== APCMessage.CONTEXT_P4) {
-                      isRelevantMessage = false;
-                    }
-
-                    //---> relevant message ? handle it
-                    if (isRelevantMessage === true) {
+                    if (((this.listeners[idx].Id1 === undefined) || (this.listeners[idx].Id1 === APCMessage.CONTEXT)) &&
+                      ((this.listeners[idx].Id2 === undefined) || (this.listeners[idx].Id2 === APCMessage.CONTEXT_P1)) &&
+                      ((this.listeners[idx].Id3 === undefined) || (this.listeners[idx].Id3 === APCMessage.CONTEXT_P2)) &&
+                      ((this.listeners[idx].Id4 === undefined) || (this.listeners[idx].Id4 === APCMessage.CONTEXT_P3)) &&
+                      ((this.listeners[idx].Id5 === undefined) || (this.listeners[idx].Id5 === APCMessage.CONTEXT_P4))) {
 
                       //--> call the callback
                       if (this.listeners[idx].callBack !== undefined) {
                         try {
-                          this.listeners[idx].callBack.bind(this.listeners[idx].callBackRef); 
-                          this.listeners[idx].callBack(APCMessage,this.listeners[idx].callBackRef); //----> delegated callback
+                          this.listeners[idx].callBack.bind(this.listeners[idx].callBackRef);
+                          this.listeners[idx].callBack(APCMessage, this.listeners[idx].callBackRef); //----> delegated callback
                         } catch (exccallback) {
                           //---> bad handling!
                         }
@@ -350,8 +332,9 @@ export class SAPconnectorService {
                         this.listeners.splice(idx, 1);
                       }
 
-                    } //<-- righe message to handle
-                  } //<-- right context type
+                    } //<-- right context found?
+
+                  } //<-- right context type?
                 }
 
               } //<--- broadcast message ?

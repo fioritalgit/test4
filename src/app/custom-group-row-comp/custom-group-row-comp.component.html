@@ -1,15 +1,13 @@
 <div [style.paddingLeft.px]="paddingLeft" style="display: flex;align-items: center;padding-top: 0.7em;">
     @if (isGroup) {
-    
         <div [style.transform]="rotation" [style.cursor]="'pointer'" [style.display]="'inline-block'" style="padding-top: 0.2em;padding-left: 1em;"
             (click)="onClick()">
             <ui5-icon name="navigation-right-arrow"/>
         </div>
-    
     }
     
     &nbsp;
-    <span style="width: 7em;padding-left: 1em;">{{ params.value }}</span>
+    <span style="font-weight: bold; width: 7em;padding-left: 1em;font-size:1.2em">{{ params.value }}</span>
     &nbsp;&nbsp;
     <ui5-input #iptsearch slot="endContent" (change)="setFiltering()" filterId="filtertype1"></ui5-input>
     <ui5-button icon="clear-filter" *ngIf="filterRes.activeFilter && filterRes.hasVisibleItems === true"  design="Transparent" (click)="removeFilter()"/>

@@ -1,21 +1,23 @@
 /*
-
 - differenziata altezza righe grouping
 - aggiunta libreria per hot-key e logica search & focus a giro
 - componente custom per renderer valori con CSS note e classe sfondo per stato confermato
+- hide columns >>> per day (partial)
 
+- matchcode
+- validation
+- copia riga sopra / copia riga sotto
 */
 
+import { pivotData } from './pivotdata';
+import { pivotData2 } from './pivotdata2';
 import { AfterViewInit, Component, HostListener, OnInit, ViewChild } from '@angular/core';
 import { SAPconnectorService } from './services/sapconnector.service';
-import { ApplyColumnStateParams, ColDef, IRowNode, RowGroupingDisplayType } from 'ag-grid-enterprise';
+import { ColDef, IRowNode, RowGroupingDisplayType } from 'ag-grid-enterprise';
 import { AgGridAngular } from 'ag-grid-angular';
-
 import { HotkeysService, Hotkey } from 'angular2-hotkeys';
 import { CustomGroupRowCompComponent } from './custom-group-row-comp/custom-group-row-comp.component';
-
-import {  Router } from '@angular/router';
-import { GlobalcontextService, ISearchReferenceArray, tFilterFields, tFilterFunction } from './services/globalcontext.service';
+import { GlobalcontextService, tFilterFunction } from './services/globalcontext.service';
 import { ValueCellRendererComponent } from './value-cell-renderer/value-cell-renderer.component';
 
 @Component({
@@ -27,19 +29,18 @@ import { ValueCellRendererComponent } from './value-cell-renderer/value-cell-ren
 export class AppComponent implements AfterViewInit, OnInit {
 
   @ViewChild('agGrid') grid!: AgGridAngular;
+  @ViewChild('agGrid2') grid2!: AgGridAngular;
   @ViewChild('ipt') ipt!: any;
 
   public groupDisplayType: RowGroupingDisplayType = "groupRows";
   public groupRowRenderer: any = CustomGroupRowCompComponent;
-
   public lastSearchString: string = ''
   public searchIndex: number = 0
   public searchTargets: Array<IRowNode> = [];
-  listeners = []
-
-  private router: any;  // subscription to route observer
-  private routeSub: any;  // subscription to route observer
-
+  
+  //---> pivot data from sample data files
+  rowData: any = pivotData;
+  rowData2: any = pivotData2;
 
   //---> DEFINE CUSTOM FILTER FUNCTIONS
   private filterFunctionExample: tFilterFunction = (sdata: any, searchTerm: string) => {
@@ -47,31 +48,7 @@ export class AppComponent implements AfterViewInit, OnInit {
   }
 
 
-  // Row Data: The data to be displayed.
-  rowData: any = [
-    { rowType: "Tesla", model: "Model Y", price: 123, electric: true , SAPvalue: 3456 , confirmed: true},
-    { rowType: "Tesla", model: "Model K", price: 64950, electric: true, hasNote: true },
-    { rowType: "Tesla", model: "Model K", price: 64950, electric: true , SAPvalue: 3456},
-    { rowType: "Ford", model: "F-Series", price: 33850, electric: false },
-    { rowType: "Toyota", model: "Corolla", price: 29600, electric: false, hasNote: true },
-    { rowType: "Tesla", model: "Model H", price: 64950, electric: true , confirmed: true},
-    { rowType: "Ford", model: "F-Series 2", price: 33850, electric: false },
-    { rowType: "Toyota", model: "Corolla", price: 29600, electric: false },
-    { rowType: "Tesla", model: "Model Z", price: 64950, electric: true },
-    { rowType: "Ford", model: "F-Series 3", price: 33850, electric: false },
-    { rowType: "Toyota", model: "Corolla", price: 29600, electric: false },
-    { rowType: "Tesla", model: "Model Y", price: 64950, electric: true },
-    { rowType: "Ford", model: "F-Series", price: 33850, electric: false },
-    { rowType: "Toyota", model: "Corolla", price: 29600, electric: false },
-    { rowType: "Tesla", model: "Model Y", price: 64950, electric: true },
-    { rowType: "Ford", model: "F-Series", price: 33850, electric: false },
-    { rowType: "Toyota", model: "Corolla", price: 29600, electric: false },
-    { rowType: "Tesla", model: "Model Y", price: 64950, electric: true },
-    { rowType: "Ford", model: "F-Series", price: 33850, electric: false },
-    { rowType: "Toyota", model: "Corolla", price: 29600, electric: false },
-  ];
-
-  // Column Definitions: Defines the columns to be displayed.
+  //---> Column Definitions: Defines the columns to be displayed.
   colDefs: ColDef[] = [
     {
       field: "rowType", rowGroup: true, valueGetter: (p: any) => {
@@ -80,11 +57,9 @@ export class AppComponent implements AfterViewInit, OnInit {
       }
     },
     { field: "model" },
-
-    //---------------------------------
     {
       field: "price",
-      cellRenderer: ValueCellRendererComponent
+      cellRenderer: ValueCellRendererComponent  //<-- custom component for value renderer
     },
     { field: "electric" }
   ];
@@ -92,16 +67,11 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   @HostListener('window:beforeunload', ['$event'])
   async handleBeforeUnload(event: Event) {
-
     console.log('>>>>> leaving <<<<<<<')
-    this.SAP.clearParameters('gr');
-    await this.SAP.callFunction('gr', 'TEST_APC', 'SYNC1')
-
   }
 
-  constructor(private SAP: SAPconnectorService, private hotkeysService: HotkeysService, router: Router, private globalContext: GlobalcontextService) {
+  constructor(private SAP: SAPconnectorService, private hotkeysService: HotkeysService ,private globalContext: GlobalcontextService) {
     //--> inject services
-    this.router = router
     this.globalContext = globalContext
   }
 
@@ -149,8 +119,8 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   public goCallSap() {
 
-    this.SAP.clearParameters('gr');
-    this.SAP.callFunction('gr', 'TEST_APC', 'SYNC1').then((data) => {
+    this.SAP.clearParameters('xpivot');
+    this.SAP.callFunction('xpivot', 'GET_PIVOT_LIST', 'SYNC1').then((data) => {
       this.rowData[0].price = this.rowData[0].price + 1
       this.grid.api.refreshCells({ force: true, rowNodes: [this.rowData[0].rowRef], suppressFlash: false })
       this.grid.api.flashCells({ rowNodes: [this.rowData[0].rowRef] })
@@ -220,11 +190,11 @@ export class AppComponent implements AfterViewInit, OnInit {
           this.searchIndex = 0
           this._gotoCell(this.searchTargets[this.searchIndex])
         }
-
       }
 
       this.lastSearchString = this.ipt.elementRef.nativeElement.value  //<--- store for next search
     }
+
   }
 
   public onSearchKeyFocusIn() {
@@ -233,23 +203,17 @@ export class AppComponent implements AfterViewInit, OnInit {
     this.searchIndex = 0
   }
 
-  public onSearchKeyFocusOut() {
+  //------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-  }
-
-
-  //--------------------------------------- start SAP service
   ngAfterViewInit(): void {
 
     //--> set Filtering functions '*' is valid for all groups! this function is called when inputbox of single group line is fired, '*' means valid for all row types
     this.globalContext.setAPI(this.grid.api)
     this.globalContext.setFilterFunction('*', this.filterFunctionExample, 'filtertype1')
 
-
     //--> manage the events of focus on global search field
     this.ipt.elementRef.nativeElement.addEventListener('keydown', this.onSearchKeyDown.bind(this));
     this.ipt.elementRef.nativeElement.addEventListener('focusin', this.onSearchKeyFocusIn.bind(this));
-    this.ipt.elementRef.nativeElement.addEventListener('focusout', this.onSearchKeyFocusOut.bind(this));
 
     //---> manage the search input filed focus
     this.hotkeysService.add(
@@ -260,26 +224,25 @@ export class AppComponent implements AfterViewInit, OnInit {
       })
     );
 
-
     //--> load UI5 and authenticate to one SAP url (can be same as service); leave version undefined to take last from CDN
-    this.SAP.activateSAPconnection(undefined, 'https://wd.fiorital.com:4304/sap/opu/odata4/sap/zretail/default/sap/zmm_gr_list/0001/?sap-client=200', 'LUCA.FARI', 'Polipoli32!', true)
+    this.SAP.activateSAPconnection(undefined, 'https://wd.fiorital.com:4302/sap/opu/odata4/sap/zmobile/default/sap/zangular_xpivot/0001/?sap-client=200', 'BPINST', 'Welcome1', true)
 
     //--> enqueue model connection request
-    this.SAP.addRemoteService("gr", "https://wd.fiorital.com:4304/sap/opu/odata4/sap/zretail/default/sap/zmm_gr_list/0001/?sap-client=200", "../assets/models.XML", false)
+    this.SAP.addRemoteService("xpivot", "https://wd.fiorital.com:4302/sap/opu/odata4/sap/zmobile/default/sap/zangular_xpivot/0001/?sap-client=200", "../assets/models.XML", false)
       .then((ref) => {
         //--> single service ready
-      })
+    })
 
-    this.SAP.setAPCparameters('https://wd.fiorital.com:4304/sap/opu/odata4/sap/zfiov4/default/sap/zfioapi/0001/Ysocket', 'apctestangular') //<-- used to get sockets ID and appID (in this case not specific)
+    this.SAP.setAPCparameters('https://wd.fiorital.com:4302/sap/opu/odata4/sap/zfiov4/default/sap/zfioapi/0001/Ysocket', 'apctestangular') //<-- used to get sockets ID and appID (in this case not specific)
     this.SAP.connectAllRemoteServices().then((ref) => {
+      
       //--> all services loaded and ready!
       console.log('done SAP');
-
       this.SAP.addListenerPermanent('1234', 'TESTANGULAR', (evt: any, objRef: any) => {
 
       }, this); //<-- pass "this" as callback objRef
 
-    });
+    })
 
   }
 
